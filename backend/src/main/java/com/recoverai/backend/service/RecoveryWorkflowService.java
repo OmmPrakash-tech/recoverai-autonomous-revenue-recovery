@@ -11,13 +11,16 @@ public class RecoveryWorkflowService {
 
     private final RecoveryEventRepository recoveryEventRepository;
     private final AiAgentService aiAgentService;
+    private final RecoveryActionService recoveryActionService;
 
     public RecoveryWorkflowService(
             RecoveryEventRepository recoveryEventRepository,
-            AiAgentService aiAgentService
+            AiAgentService aiAgentService,
+            RecoveryActionService recoveryActionService
     ) {
         this.recoveryEventRepository = recoveryEventRepository;
         this.aiAgentService = aiAgentService;
+        this.recoveryActionService = recoveryActionService;
     }
 
     public RecoveryDecisionResponse processRecovery(
@@ -38,14 +41,15 @@ public class RecoveryWorkflowService {
         // 2. Save event before AI analysis
         recoveryEvent = recoveryEventRepository.save(recoveryEvent);
 
-        // 3. Send event to AI Agent
+        // 3. Ask AI Agent for recovery decision
         RecoveryDecisionResponse decision =
                 aiAgentService.analyzeEvent(request);
 
+        String recommendedAction =
+                decision.recoveryDecision().recommendedAction();
+
         // 4. Store AI decision
-        recoveryEvent.setRecommendedAction(
-                decision.recoveryDecision().recommendedAction()
-        );
+        recoveryEvent.setRecommendedAction(recommendedAction);
 
         recoveryEvent.setPriority(
                 decision.recoveryDecision().priority()
@@ -53,10 +57,18 @@ public class RecoveryWorkflowService {
 
         recoveryEvent.setStatus("ANALYZED");
 
-        // 5. Update existing database record
         recoveryEventRepository.save(recoveryEvent);
 
-        // 6. Return AI decision
+        // 5. Execute the recommended action
+        String actionStatus =
+                recoveryActionService.executeAction(recommendedAction);
+
+        // 6. Store final action status
+        recoveryEvent.setStatus(actionStatus);
+
+        recoveryEventRepository.save(recoveryEvent);
+
+        // 7. Return the AI decision
         return decision;
     }
 }
