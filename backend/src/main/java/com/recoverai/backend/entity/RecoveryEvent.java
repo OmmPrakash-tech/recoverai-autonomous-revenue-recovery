@@ -15,6 +15,9 @@ public class RecoveryEvent {
     @Column(name = "event_id", unique = true, nullable = false)
     private String eventId;
 
+    @Column(name = "razorpay_payment_id")
+private String razorpayPaymentId;
+
     @Column(name = "customer_id", nullable = false)
     private String customerId;
 
@@ -122,5 +125,13 @@ public class RecoveryEvent {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public String getRazorpayPaymentId() {
+        return razorpayPaymentId;
+    }
+
+    public void setRazorpayPaymentId(String razorpayPaymentId) {
+        this.razorpayPaymentId = razorpayPaymentId;
     }
 }

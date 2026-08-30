@@ -24,6 +24,16 @@ public class RecoveryActionService {
                 yield "NOTIFICATION_SENT";
             }
 
+            case "request_customer_action" -> {
+                System.out.println("Requesting customer action...");
+                yield "CUSTOMER_ACTION_REQUIRED";
+            }
+
+            case "escalate_to_support" -> {
+                System.out.println("Escalating event to support...");
+                yield "ESCALATED_TO_SUPPORT";
+            }
+
             case "manual_review" -> {
                 System.out.println("Sending event for manual review...");
                 yield "MANUAL_REVIEW_REQUIRED";
