@@ -2,7 +2,7 @@ package com.recoverai.backend.controller;
 
 import com.recoverai.backend.dto.RecoveryDecisionResponse;
 import com.recoverai.backend.dto.RevenueEventRequest;
-import com.recoverai.backend.service.AiAgentService;
+import com.recoverai.backend.service.RecoveryWorkflowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/revenue")
 public class RevenueEventController {
 
-    private final AiAgentService aiAgentService;
+    private final RecoveryWorkflowService recoveryWorkflowService;
 
     public RevenueEventController(
-            AiAgentService aiAgentService
+            RecoveryWorkflowService recoveryWorkflowService
     ) {
-        this.aiAgentService = aiAgentService;
+        this.recoveryWorkflowService = recoveryWorkflowService;
     }
 
     @PostMapping("/events")
@@ -24,7 +24,7 @@ public class RevenueEventController {
     ) {
 
         RecoveryDecisionResponse decision =
-                aiAgentService.analyzeEvent(event);
+                recoveryWorkflowService.processRecovery(event);
 
         return ResponseEntity.ok(decision);
     }
