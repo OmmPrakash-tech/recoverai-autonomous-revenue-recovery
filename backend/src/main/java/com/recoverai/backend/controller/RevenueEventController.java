@@ -146,4 +146,67 @@ public class RevenueEventController {
                         ResponseEntity.notFound().build()
                 );
     }
+
+    // --------------------------------------------------
+// Approve recovery event
+// --------------------------------------------------
+
+@PostMapping("/events/{eventId}/approve")
+public ResponseEntity<RecoveryEvent> approveEvent(
+        @PathVariable String eventId
+) {
+
+    return recoveryEventRepository
+            .findByEventId(eventId)
+            .map(event -> {
+
+                event.setStatus("APPROVED");
+                event.setGateStatus("HUMAN_APPROVAL_GRANTED");
+                event.setPolicyDecision("ALLOWED");
+                event.setDecisionReason(
+                        "Recovery action approved by human operator."
+                );
+
+                RecoveryEvent saved =
+                        recoveryEventRepository.save(event);
+
+                return ResponseEntity.ok(saved);
+
+            })
+            .orElseGet(() ->
+                    ResponseEntity.notFound().build()
+            );
+}
+
+
+// --------------------------------------------------
+// Reject recovery event
+// --------------------------------------------------
+
+@PostMapping("/events/{eventId}/reject")
+public ResponseEntity<RecoveryEvent> rejectEvent(
+        @PathVariable String eventId
+) {
+
+    return recoveryEventRepository
+            .findByEventId(eventId)
+            .map(event -> {
+
+                event.setStatus("REJECTED");
+                event.setGateStatus("HUMAN_REJECTION");
+                event.setPolicyDecision("BLOCKED");
+                event.setDecisionReason(
+                        "Recovery action rejected by human operator."
+                );
+
+                RecoveryEvent saved =
+                        recoveryEventRepository.save(event);
+
+                return ResponseEntity.ok(saved);
+
+            })
+            .orElseGet(() ->
+                    ResponseEntity.notFound().build()
+            );
+}
 }
