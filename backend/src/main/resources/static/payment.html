@@ -38,10 +38,10 @@
 
 <p>Test Razorpay payment</p>
 
-<h2>₹500</h2>
+<h2>₹15000</h2>
 
 <button onclick="startPayment()">
-    Pay ₹500
+    Pay ₹15000
 </button>
 
 <div id="result">
@@ -56,6 +56,8 @@ async function startPayment() {
     const resultBox =
         document.getElementById("result");
 
+        const paymentAmount = 15000;
+
     try {
 
         resultBox.textContent =
@@ -67,12 +69,14 @@ async function startPayment() {
         // =========================================
 
         const orderResponse =
-            await fetch(
-                "/api/v1/revenue/orders?amount=500&currency=INR",
-                {
-                    method: "POST"
-                }
-            );
+    await fetch(
+        "/api/v1/revenue/orders?amount=" +
+        paymentAmount +
+        "&currency=INR",
+        {
+            method: "POST"
+        }
+    );
 
 
         if (!orderResponse.ok) {
@@ -355,7 +359,7 @@ async function processFailedPayment(
                 "CUST_TEST_001",
 
             amount:
-                500,
+                15000,
 
             currency:
                 "INR",

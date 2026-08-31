@@ -15,7 +15,7 @@ class PolicyGuardrailServiceTest {
         var result = guardrail.evaluate(
                 "retry_later",
                 "medium",
-                500
+                15000
         );
 
         assertEquals("ALLOWED", result.policyDecision());
@@ -44,7 +44,7 @@ class PolicyGuardrailServiceTest {
         var result = guardrail.evaluate(
                 "retry_later",
                 "critical",
-                500
+                15000
         );
 
         assertEquals("BLOCKED", result.policyDecision());
@@ -60,7 +60,7 @@ class PolicyGuardrailServiceTest {
         var result = guardrail.evaluate(
                 "do_something_dangerous",
                 "medium",
-                500
+                15000
         );
 
         assertEquals("BLOCKED", result.policyDecision());
@@ -76,7 +76,7 @@ class PolicyGuardrailServiceTest {
         var result = guardrail.evaluate(
                 null,
                 "medium",
-                500
+                15000
         );
 
         assertEquals("BLOCKED", result.policyDecision());

@@ -1,15 +1,20 @@
 package com.recoverai.backend.controller;
 
+
 import com.razorpay.Order;
 import com.razorpay.RazorpayException;
 import com.recoverai.backend.dto.RazorpayOrderResponse;
 import com.recoverai.backend.dto.RazorpayPaymentVerificationRequest;
 import com.recoverai.backend.dto.RecoveryDecisionResponse;
 import com.recoverai.backend.dto.RevenueEventRequest;
+import com.recoverai.backend.entity.RecoveryEvent;
+import com.recoverai.backend.repository.RecoveryEventRepository;
 import com.recoverai.backend.service.RazorpayPaymentService;
 import com.recoverai.backend.service.RecoveryWorkflowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/revenue")
@@ -17,13 +22,16 @@ public class RevenueEventController {
 
     private final RazorpayPaymentService razorpayPaymentService;
     private final RecoveryWorkflowService recoveryWorkflowService;
+    private final RecoveryEventRepository recoveryEventRepository;
 
     public RevenueEventController(
             RazorpayPaymentService razorpayPaymentService,
-            RecoveryWorkflowService recoveryWorkflowService
+            RecoveryWorkflowService recoveryWorkflowService,
+            RecoveryEventRepository recoveryEventRepository
     ) {
         this.razorpayPaymentService = razorpayPaymentService;
         this.recoveryWorkflowService = recoveryWorkflowService;
+        this.recoveryEventRepository = recoveryEventRepository;
     }
 
     // --------------------------------------------------
@@ -108,5 +116,34 @@ public class RevenueEventController {
                                     + e.getMessage()
                     );
         }
+    }
+
+    // --------------------------------------------------
+    // Get all recovery events - Audit Trail
+    // --------------------------------------------------
+
+    @GetMapping("/events")
+    public ResponseEntity<List<RecoveryEvent>> getAllEvents() {
+
+        return ResponseEntity.ok(
+                recoveryEventRepository.findAll()
+        );
+    }
+
+    // --------------------------------------------------
+    // Get single recovery event by event ID
+    // --------------------------------------------------
+
+    @GetMapping("/events/{eventId}")
+    public ResponseEntity<RecoveryEvent> getEvent(
+            @PathVariable String eventId
+    ) {
+
+        return recoveryEventRepository
+                .findByEventId(eventId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build()
+                );
     }
 }
