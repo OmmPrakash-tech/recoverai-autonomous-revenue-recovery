@@ -142,9 +142,8 @@ public class RazorpayPaymentService {
             return false;
         }
 
-        // Payment must have a valid status
-        return razorpayStatus != null
-                && !razorpayStatus.isBlank();
+        // Payment must be failed
+return "failed".equalsIgnoreCase(razorpayStatus);
     }
 
     // --------------------------------------------------
