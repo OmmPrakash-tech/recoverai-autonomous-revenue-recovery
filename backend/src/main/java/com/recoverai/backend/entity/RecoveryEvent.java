@@ -39,6 +39,15 @@ private String razorpayPaymentId;
 
     private String status;
 
+    @Column(name = "decision_reason", length = 1000)
+private String decisionReason;
+
+@Column(name = "policy_decision")
+private String policyDecision;
+
+@Column(name = "gate_status")
+private String gateStatus;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -133,5 +142,29 @@ private String razorpayPaymentId;
 
     public void setRazorpayPaymentId(String razorpayPaymentId) {
         this.razorpayPaymentId = razorpayPaymentId;
+    }
+
+    public String getDecisionReason() {
+        return decisionReason;
+    }
+
+    public void setDecisionReason(String decisionReason) {
+        this.decisionReason = decisionReason;
+    }
+
+    public String getPolicyDecision() {
+        return policyDecision;
+    }
+
+    public void setPolicyDecision(String policyDecision) {
+        this.policyDecision = policyDecision;
+    }
+
+    public String getGateStatus() {
+        return gateStatus;
+    }
+
+    public void setGateStatus(String gateStatus) {
+        this.gateStatus = gateStatus;
     }
 }

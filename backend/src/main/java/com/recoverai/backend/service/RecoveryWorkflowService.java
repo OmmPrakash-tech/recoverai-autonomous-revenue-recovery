@@ -13,17 +13,20 @@ public class RecoveryWorkflowService {
     private final AiAgentService aiAgentService;
     private final RecoveryActionService recoveryActionService;
     private final RazorpayPaymentService razorpayPaymentService;
+    private final PolicyGuardrailService policyGuardrailService;
 
     public RecoveryWorkflowService(
             RecoveryEventRepository recoveryEventRepository,
             AiAgentService aiAgentService,
             RecoveryActionService recoveryActionService,
-            RazorpayPaymentService razorpayPaymentService
+            RazorpayPaymentService razorpayPaymentService,
+            PolicyGuardrailService policyGuardrailService
     ) {
         this.recoveryEventRepository = recoveryEventRepository;
         this.aiAgentService = aiAgentService;
         this.recoveryActionService = recoveryActionService;
         this.razorpayPaymentService = razorpayPaymentService;
+        this.policyGuardrailService = policyGuardrailService;
     }
 
     public RecoveryDecisionResponse processRecovery(
@@ -146,29 +149,62 @@ if (!paymentValid) {
                 recoveryEvent
         );
 
-        // ==========================================
-        // 8. Execute recovery action
-        // ==========================================
+       // ==========================================
+// 8. Apply policy guardrails
+// ==========================================
 
-        String actionStatus =
-                recoveryActionService.executeAction(
-                        recommendedAction
-                );
-
-        // ==========================================
-        // 9. Store final action status
-        // ==========================================
-
-        recoveryEvent.setStatus(
-                actionStatus
+PolicyGuardrailService.PolicyDecision policy =
+        policyGuardrailService.evaluate(
+                recommendedAction,
+                priority,
+                request.amount()
         );
 
-        recoveryEventRepository.save(
-                recoveryEvent
-        );
+recoveryEvent.setPolicyDecision(
+        policy.policyDecision()
+);
+
+recoveryEvent.setGateStatus(
+        policy.gateStatus()
+);
+
+recoveryEvent.setDecisionReason(
+        policy.reason()
+);
+
+// ==========================================
+// 9. Execute only if policy allows
+// ==========================================
+
+String actionStatus;
+
+if ("ALLOWED".equals(policy.policyDecision())) {
+
+    actionStatus =
+            recoveryActionService.executeAction(
+                    recommendedAction
+            );
+
+} else {
+
+    actionStatus = "HUMAN_APPROVAL_REQUIRED";
+
+}
+
+// ==========================================
+// 10. Store final status
+// ==========================================
+
+recoveryEvent.setStatus(
+        actionStatus
+);
+
+recoveryEventRepository.save(
+        recoveryEvent
+);
 
         // ==========================================
-        // 10. Return AI decision
+        // 11. Return decision response
         // ==========================================
 
         return decision;
