@@ -16,19 +16,19 @@ public class RazorpayPaymentService {
     private final String keyId;
     private final String keySecret;
 
-    public RazorpayPaymentService(
-            @Value("${razorpay.key.id}") String keyId,
-            @Value("${razorpay.key.secret}") String keySecret
-    ) throws RazorpayException {
+   public RazorpayPaymentService(
+        @Value("${razorpay.key.id}") String keyId,
+        @Value("${razorpay.key.secret}") String keySecret
+) throws RazorpayException {
 
-        this.keyId = keyId;
-        this.keySecret = keySecret;
+    this.keyId = keyId;
+    this.keySecret = keySecret;
 
-        this.razorpayClient = new RazorpayClient(
-                keyId,
-                keySecret
-        );
-    }
+    this.razorpayClient = new RazorpayClient(
+            keyId,
+            keySecret
+    );
+}
 
     // --------------------------------------------------
     // Get payment status from Razorpay

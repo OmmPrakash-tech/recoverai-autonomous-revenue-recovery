@@ -7,6 +7,8 @@ function App() {
   const [error, setError] = useState("");
 
   const [selectedEvent, setSelectedEvent] = useState(null);
+const [actionLoading, setActionLoading] = useState(false);
+  
 
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -38,6 +40,41 @@ function App() {
       setLoading(false);
     }
   };
+
+  const handleEventAction = async (eventId, action) => {
+  try {
+    setActionLoading(true);
+
+    const response = await fetch(
+      `/api/v1/revenue/events/${eventId}/${action}`,
+      {
+        method: "POST",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const updatedEvent = await response.json();
+
+    // Update the event in the current list
+    setEvents((currentEvents) =>
+      currentEvents.map((event) =>
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    );
+
+    // Update the currently opened modal
+    setSelectedEvent(updatedEvent);
+
+  } catch (err) {
+    console.error(err);
+    setError(`Unable to ${action} recovery event.`);
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchEvents();
@@ -1047,5 +1084,8 @@ function App() {
     </div>
   );
 }
+
+
+
 
 export default App;
