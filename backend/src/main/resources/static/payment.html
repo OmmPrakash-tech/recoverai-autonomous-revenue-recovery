@@ -1,53 +1,73 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
 
-    <title>RecoverAI Payment Test</title>
+```
+<title>RecoverAI Payment Test</title>
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 80px auto;
-            text-align: center;
-        }
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 80px auto;
+        text-align: center;
+    }
 
-        button {
-            padding: 14px 30px;
-            font-size: 18px;
-            cursor: pointer;
-        }
+    input {
+        padding: 12px;
+        font-size: 18px;
+        width: 250px;
+        margin: 15px 0;
+        box-sizing: border-box;
+    }
 
-        #result {
-            margin-top: 30px;
-            padding: 20px;
-            white-space: pre-wrap;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-    </style>
+    button {
+        padding: 14px 30px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    #result {
+        margin-top: 30px;
+        padding: 20px;
+        white-space: pre-wrap;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+</style>
+```
+
 </head>
 
 <body>
 
 <h1>RecoverAI Payment Test</h1>
 
-<p>Test Razorpay payment</p>
+<p>Enter the amount you want to pay</p>
 
-<h2>₹15000</h2>
+<input
+type="number"
+id="amount"
+placeholder="Enter amount in ₹"
+min="1"
+step="0.01"
+
+>
+
+<br>
 
 <button onclick="startPayment()">
-    Pay ₹15000
+    Pay Now
 </button>
 
 <div id="result">
     Waiting for payment...
 </div>
-
 
 <script>
 
@@ -56,12 +76,53 @@ async function startPayment() {
     const resultBox =
         document.getElementById("result");
 
-        const paymentAmount = 15000;
-
     try {
 
+        // =========================================
+        // GET AMOUNT FROM USER
+        // =========================================
+
+        const amountInput =
+            document.getElementById("amount").value;
+
+        const amount = parseFloat(amountInput);
+
+
+        // =========================================
+        // VALIDATE AMOUNT
+        // =========================================
+
+        if (!amountInput || isNaN(amount)) {
+
+            resultBox.textContent =
+                "Please enter a valid amount.";
+
+            return;
+        }
+
+        if (amount <= 0) {
+
+            resultBox.textContent =
+                "Amount must be greater than ₹0.";
+
+            return;
+        }
+
+
+        // =========================================
+        // CONVERT RUPEES TO PAISE
+        // =========================================
+
+     // =========================================
+// AMOUNT IN RUPEES
+// Backend will handle paise conversion
+// =========================================
+
+const paymentAmount = amount;
+
         resultBox.textContent =
-            "Creating Razorpay order...";
+            "Creating Razorpay order...\n\n" +
+            "Amount: ₹" + amount;
 
 
         // =========================================
@@ -69,14 +130,14 @@ async function startPayment() {
         // =========================================
 
         const orderResponse =
-    await fetch(
-        "/api/v1/revenue/orders?amount=" +
-        paymentAmount +
-        "&currency=INR",
-        {
-            method: "POST"
-        }
-    );
+            await fetch(
+                "/api/v1/revenue/orders?amount=" +
+                paymentAmount +
+                "&currency=INR",
+                {
+                    method: "POST"
+                }
+            );
 
 
         if (!orderResponse.ok) {
@@ -97,11 +158,16 @@ async function startPayment() {
 
         resultBox.textContent =
             "Order created\n\n" +
-            "Order ID: " + order.orderId +
+
+            "Order ID: " +
+            order.orderId +
+
             "\nAmount: ₹" +
             (order.amount / 100) +
+
             "\nCurrency: " +
             order.currency +
+
             "\n\nOpening Razorpay...";
 
 
@@ -227,7 +293,8 @@ async function startPayment() {
 
                 await processFailedPayment(
                     paymentId,
-                    failureReason
+                    failureReason,
+                    amount
                 );
             }
         );
@@ -293,6 +360,7 @@ async function verifyPayment(payment) {
             verificationResponse.status
         );
 
+
         console.log(
             "Verification result:",
             result
@@ -338,7 +406,8 @@ async function verifyPayment(payment) {
 
 async function processFailedPayment(
     paymentId,
-    failureReason
+    failureReason,
+    amount
 ) {
 
     const resultBox =
@@ -359,7 +428,7 @@ async function processFailedPayment(
                 "CUST_TEST_001",
 
             amount:
-                15000,
+                amount,
 
             currency:
                 "INR",
@@ -404,6 +473,7 @@ async function processFailedPayment(
             response.status
         );
 
+
         console.log(
             "RecoverAI response:",
             result
@@ -435,6 +505,11 @@ async function processFailedPayment(
 
             "Payment ID:\n" +
             paymentId +
+
+            "\n\n" +
+
+            "Amount:\n₹" +
+            amount +
 
             "\n\n" +
 
