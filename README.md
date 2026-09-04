@@ -40,12 +40,6 @@ The platform includes:
 - Dashboard statistics for processed, auto-approved, blocked, and manual-review events.
 - Persistent event history for auditing and operational review.
 
-## Project Architecture
-
-<p align="center">
-  <img src="docs/recoverai_architecture.png" alt="RecoverAI project architecture" width="100%" />
-</p>
-
 ### Recovery Flow
 
 1. Razorpay produces a payment or revenue event.
